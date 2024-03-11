@@ -42,7 +42,9 @@ classdef DataManagement < DataAttribute
                 data = readmatrix(nowFile);
                 %不需要最开始的时间戳信息
                 obj.number2Data(number) = data(:, 5: end);
-                obj.number2Tar(number) = data(:, 2: 3);
+                %目标数据分别是总厚度和水占比
+                s = sum(data(:, 2: 3), 2); 
+                obj.number2Tar(number) = [s, data(:, 3) ./ s];
             end
         end
 
