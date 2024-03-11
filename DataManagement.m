@@ -82,7 +82,8 @@ classdef DataManagement < DataAttribute
         %注意数据都是按行存储
         %trainSets指定了训练集的数据选取方式, 其余数据为测试集
         %每行为名称和数据编号
-        function [trainData, trainTar, testData, testTar] = generateData(obj, trainSet)
+        function [trainData, trainThick, trainRatio, ...
+                testData, testThick, testRatio] = generateData(obj, trainSet)
             trainIdx = 1;
             testIdx = 1;
             keyNumbers = keys(obj.number2Data);
@@ -90,20 +91,21 @@ classdef DataManagement < DataAttribute
                 nowKey = keyNumbers{1, i};
                 nowData = obj.number2Data(nowKey);
                 nowTar = obj.number2Tar(nowKey);
-                [r1, c1] = size(nowData);
-                [~, c2] = size(nowTar);
+                [r, c] = size(nowData);
                 if find(trainSet == nowKey)
                     s = trainIdx;
-                    e = trainIdx + r1 - 1;
-                    trainData(s: e, 1: c1) = nowData;
-                    trainTar(s: e, 1: c2) = nowTar;
-                    trainIdx = trainIdx + r1;
+                    e = trainIdx + r - 1;
+                    trainData(s: e, 1: c) = nowData;
+                    trainThick(s: e, 1) = nowTar(:, 1);
+                    trainRatio(s: e, 1) = nowTar(:, 2);
+                    trainIdx = trainIdx + r;
                 else
                     s = testIdx;
-                    e = testIdx + r1 - 1;
-                    testData(s: e, 1: c1) = nowData;
-                    testTar(s: e, 1: c2) = nowTar; 
-                    testIdx = testIdx + r1;
+                    e = testIdx + r - 1;
+                    testData(s: e, 1: c) = nowData;
+                    testThick(s: e, 1) = nowTar(:, 1);
+                    testRatio(s: e, 1) = nowTar(:, 2);
+                    testIdx = testIdx + r;
                 end
             end
         end
