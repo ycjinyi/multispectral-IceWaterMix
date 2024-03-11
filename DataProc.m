@@ -50,43 +50,44 @@ classdef DataProc < DataAttribute
             end
             trainData = trainData(:, sIdx: cIdx - 1);
             testData = testData(:, sIdx: cIdx - 1);
-            %进一步构造特征
-            for i = 1: size(trainData, 2) - 1
-                trainData(:, cIdx) = trainData(:, i) + trainData(:, i + 1);
-                trainData(:, cIdx + 1) = trainData(:, i) ./ trainData(:, i + 1);
-                testData(:, cIdx) = testData(:, i) + testData(:, i + 1);
-                testData(:, cIdx + 1) = testData(:, i) ./ testData(:, i + 1);
-                cIdx = cIdx + 2;
-            end
+            % %进一步构造特征
+            % cIdx = size(trainData, 2) + 1;
+            % for i = 1: size(trainData, 2) - 1
+            %     trainData(:, cIdx) = trainData(:, i) + trainData(:, i + 1);
+            %     trainData(:, cIdx + 1) = trainData(:, i) ./ trainData(:, i + 1);
+            %     testData(:, cIdx) = testData(:, i) + testData(:, i + 1);
+            %     testData(:, cIdx + 1) = testData(:, i) ./ testData(:, i + 1);
+            %     cIdx = cIdx + 2;
+            % end
         end
 
         %构造特征, 注意行为一条数据, 列为特征
         function [trainData, testData] = strucRatioFeature(obj, trainData, ...
                 trainThick, testData, testThick)
             cIdx = size(trainData, 2) + 1;
-            %将不同接收管的相同波段的比值作为特征 
-            for i = 1: obj.rNum - 1
-                idx1 = (i - 1) * obj.pNum;
-                idx2 = i * obj.pNum;
-                for j = 1: obj.pNum
-                     trainData(:, cIdx) = trainData(:, idx1 + j) ./ trainData(:, idx2 + j);
-                     trainData(:, cIdx + 1) = trainData(:, idx1 + j) + trainData(:, idx2 + j);
-                     testData(:, cIdx) = testData(:, idx1 + j) ./ testData(:, idx2 + j);
-                     testData(:, cIdx + 1) = testData(:, idx1 + j) + testData(:, idx2 + j);
-                     cIdx = cIdx + 2; 
-                end
-            end
-            %将相同接收管的不同波段的比值、和值作为特征
-            for i = 1: obj.rNum
-                idx = (i - 1) * obj.pNum;
-                for j = 1: obj.pNum - 1
-                    trainData(:, cIdx) = trainData(:, idx + j) ./ trainData(:, idx + j + 1);
-                    trainData(:, cIdx + 1) = trainData(:, idx + j) + trainData(:, idx + j + 1);
-                    testData(:, cIdx) = testData(:, idx + j) ./ testData(:, idx + j + 1);
-                    testData(:, cIdx + 1) = testData(:, idx + j) + testData(:, idx + j + 1);
-                    cIdx = cIdx + 2;
-                end
-            end
+            % %将不同接收管的相同波段的比值作为特征 
+            % for i = 1: obj.rNum - 1
+            %     idx1 = (i - 1) * obj.pNum;
+            %     idx2 = i * obj.pNum;
+            %     for j = 1: obj.pNum
+            %          trainData(:, cIdx) = trainData(:, idx1 + j) ./ trainData(:, idx2 + j);
+            %          trainData(:, cIdx + 1) = trainData(:, idx1 + j) + trainData(:, idx2 + j);
+            %          testData(:, cIdx) = testData(:, idx1 + j) ./ testData(:, idx2 + j);
+            %          testData(:, cIdx + 1) = testData(:, idx1 + j) + testData(:, idx2 + j);
+            %          cIdx = cIdx + 2; 
+            %     end
+            % end
+            % %将相同接收管的不同波段的比值、和值作为特征
+            % for i = 1: obj.rNum
+            %     idx = (i - 1) * obj.pNum;
+            %     for j = 1: obj.pNum - 1
+            %         trainData(:, cIdx) = trainData(:, idx + j) ./ trainData(:, idx + j + 1);
+            %         trainData(:, cIdx + 1) = trainData(:, idx + j) + trainData(:, idx + j + 1);
+            %         testData(:, cIdx) = testData(:, idx + j) ./ testData(:, idx + j + 1);
+            %         testData(:, cIdx + 1) = testData(:, idx + j) + testData(:, idx + j + 1);
+            %         cIdx = cIdx + 2;
+            %     end
+            % end
             %添加厚度特征
             trainData(:, cIdx) = trainThick;
             testData(:, cIdx) = testThick;
@@ -98,8 +99,8 @@ classdef DataProc < DataAttribute
             [trainData, testData] = obj.strucThickFeature(trainData, testData);
             %标准化数据
             [trainData, testData] = obj.zScore(trainData, testData);
-            %PCA降维
-            [trainData, testData] = obj.PCA(trainData, testData, ratio);
+            % %PCA降维
+            % [trainData, testData] = obj.PCA(trainData, testData, ratio);
         end
 
         %冰水比例模型的数据处理
@@ -110,8 +111,8 @@ classdef DataProc < DataAttribute
                 trainThick, testData, testThick);
             %标准化数据
             [trainData, testData] = obj.zScore(trainData, testData);
-            %PCA降维
-            [trainData, testData] = obj.PCA(trainData, testData, ratio);
+            % %PCA降维
+            % [trainData, testData] = obj.PCA(trainData, testData, ratio);
         end
 
     end
