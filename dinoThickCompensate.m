@@ -23,7 +23,8 @@ data = ...
 x = data(:, 1);
 y = data(:, 2) - data(:, 1);
 % y = medfilt1(y, 3);
-% plot(x, y);
+figure;
+scatter(x, y); hold on;
 [fitresult, ~] = cruvFit(x, y, "poly1");
 plot(x, fitresult(x));
 

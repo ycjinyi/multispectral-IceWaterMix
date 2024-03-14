@@ -1,5 +1,4 @@
 function [trainedModel, validationRMSE] = trainRatioModel(trainingData, responseData)
-% [trainedModel, validationRMSE] = trainRegressionModel(trainingData,
 % responseData)
 % 返回经过训练的回归模型及其 RMSE。以下代码重新创建在回归学习器中训练的模型。您可以使用该生
 % 成的代码基于新数据自动训练同一模型，或通过它了解如何以程序化方式训练模型。
@@ -32,17 +31,19 @@ function [trainedModel, validationRMSE] = trainRatioModel(trainingData, response
 % T2 必须是仅包含用于训练的预测变量列的矩阵。有关详细信息，请输入:
 %   trainedModel.HowToPredict
 
+% 由 MATLAB 于 2024-03-14 19:39:42 自动生成
+
 
 % 提取预测变量和响应
 % 以下代码将数据处理为合适的形状以训练模型。
 %
 % 将输入转换为表
-inputTable = array2table(trainingData, 'VariableNames', {'column_1', 'column_2', 'column_3', 'column_4', 'column_5', 'column_6', 'column_7', 'column_8', 'column_9', 'column_10', 'column_11', 'column_12', 'column_13'});
+inputTable = array2table(trainingData, 'VariableNames', {'column_1', 'column_2', 'column_3', 'column_4', 'column_5', 'column_6', 'column_7', 'column_8', 'column_9'});
 
-predictorNames = {'column_1', 'column_2', 'column_3', 'column_4', 'column_5', 'column_6', 'column_7', 'column_8', 'column_9', 'column_10', 'column_11', 'column_12', 'column_13'};
+predictorNames = {'column_1', 'column_2', 'column_3', 'column_4', 'column_5', 'column_6', 'column_7', 'column_8', 'column_9'};
 predictors = inputTable(:, predictorNames);
 response = responseData;
-isCategoricalPredictor = [false, false, false, false, false, false, false, false, false, false, false, false, false];
+isCategoricalPredictor = [false, false, false, false, false, false, false, false, false];
 
 % 训练回归模型
 % 以下代码指定所有模型选项并训练模型。
@@ -55,9 +56,9 @@ epsilon = responseScale/13.49;
 regressionSVM = fitrsvm(...
     predictors, ...
     response, ...
-    'KernelFunction', 'gaussian', ...
-    'PolynomialOrder', [], ...
-    'KernelScale', 3.6, ...
+    'KernelFunction', 'polynomial', ...
+    'PolynomialOrder', 2, ...
+    'KernelScale', 'auto', ...
     'BoxConstraint', boxConstraint, ...
     'Epsilon', epsilon, ...
     'Standardize', true);
@@ -70,18 +71,18 @@ trainedModel.predictFcn = @(x) svmPredictFcn(predictorExtractionFcn(x));
 % 向结果结构体中添加字段
 trainedModel.RegressionSVM = regressionSVM;
 trainedModel.About = '此结构体是从回归学习器 R2023b 导出的训练模型。';
-trainedModel.HowToPredict = sprintf('要对新预测变量列矩阵 X 进行预测，请使用: \n yfit = c.predictFcn(X) \n将 ''c'' 替换为作为此结构体的变量的名称，例如 ''trainedModel''。\n \nX 必须包含正好 13 个列，因为此模型是使用 13 个预测变量进行训练的。\nX 必须仅包含与训练数据具有完全相同的顺序和格式的\n预测变量列。不要包含响应列或未导入 App 的任何列。\n \n有关详细信息，请参阅 <a href="matlab:helpview(fullfile(docroot, ''stats'', ''stats.map''), ''appregression_exportmodeltoworkspace'')">How to predict using an exported model</a>。');
+trainedModel.HowToPredict = sprintf('要对新预测变量列矩阵 X 进行预测，请使用: \n yfit = c.predictFcn(X) \n将 ''c'' 替换为作为此结构体的变量的名称，例如 ''trainedModel''。\n \nX 必须包含正好 9 个列，因为此模型是使用 9 个预测变量进行训练的。\nX 必须仅包含与训练数据具有完全相同的顺序和格式的\n预测变量列。不要包含响应列或未导入 App 的任何列。\n \n有关详细信息，请参阅 <a href="matlab:helpview(fullfile(docroot, ''stats'', ''stats.map''), ''appregression_exportmodeltoworkspace'')">How to predict using an exported model</a>。');
 
 % 提取预测变量和响应
 % 以下代码将数据处理为合适的形状以训练模型。
 %
 % 将输入转换为表
-inputTable = array2table(trainingData, 'VariableNames', {'column_1', 'column_2', 'column_3', 'column_4', 'column_5', 'column_6', 'column_7', 'column_8', 'column_9', 'column_10', 'column_11', 'column_12', 'column_13'});
+inputTable = array2table(trainingData, 'VariableNames', {'column_1', 'column_2', 'column_3', 'column_4', 'column_5', 'column_6', 'column_7', 'column_8', 'column_9'});
 
-predictorNames = {'column_1', 'column_2', 'column_3', 'column_4', 'column_5', 'column_6', 'column_7', 'column_8', 'column_9', 'column_10', 'column_11', 'column_12', 'column_13'};
+predictorNames = {'column_1', 'column_2', 'column_3', 'column_4', 'column_5', 'column_6', 'column_7', 'column_8', 'column_9'};
 predictors = inputTable(:, predictorNames);
 response = responseData;
-isCategoricalPredictor = [false, false, false, false, false, false, false, false, false, false, false, false, false];
+isCategoricalPredictor = [false, false, false, false, false, false, false, false, false];
 
 % 执行交叉验证
 KFolds = 5;
@@ -104,9 +105,9 @@ for fold = 1:KFolds
     regressionSVM = fitrsvm(...
         trainingPredictors, ...
         trainingResponse, ...
-        'KernelFunction', 'gaussian', ...
-        'PolynomialOrder', [], ...
-        'KernelScale', 3.6, ...
+        'KernelFunction', 'polynomial', ...
+        'PolynomialOrder', 2, ...
+        'KernelScale', 'auto', ...
         'BoxConstraint', boxConstraint, ...
         'Epsilon', epsilon, ...
         'Standardize', true);

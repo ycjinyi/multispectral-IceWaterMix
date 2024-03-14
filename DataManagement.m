@@ -40,6 +40,12 @@ classdef DataManagement < DataAttribute
                 nowFile = path + "\" + name;
                 %读取数据
                 data = readmatrix(nowFile);
+                %仅保留水的厚度在0.1mm以上的情况
+                idx = find(data(:, 3) >= 0.1, 1);
+                data = data(idx: end, :);
+                %对水的厚度进行补偿
+                load("dinoThickCompensate.mat", "fitresult");
+                data(:, 3) = data(:, 3) + fitresult(data(:, 3));
                 %不需要最开始的时间戳信息
                 obj.number2Data(number) = data(:, 5: end);
                 %目标数据分别是总厚度和水占比

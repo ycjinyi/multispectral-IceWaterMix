@@ -39,17 +39,18 @@ classdef DataProc < DataAttribute
 
         %厚度回归的特征处理函数
         function [trainData, testData] = strucThickFeature(obj, trainData, testData)
-            sIdx = size(trainData, 2) + 1;
-            cIdx = sIdx;
-            %只需要890nm波段的数据
-            for i = 1: obj.rNum
-                idx = (i - 1) * obj.pNum + 1;
-                trainData(:, cIdx) = trainData(:, idx);
-                testData(:, cIdx) = testData(:, idx);
-                cIdx = cIdx + 1;
-            end
-            trainData = trainData(:, sIdx: cIdx - 1);
-            testData = testData(:, sIdx: cIdx - 1);
+            % sIdx = size(trainData, 2) + 1;
+            % cIdx = sIdx;
+            % %只需要890nm波段前两路的数据
+            % for i = 1: obj.rNum - 1
+            %     idx = (i - 1) * obj.pNum + 1;
+            %     trainData(:, cIdx) = trainData(:, idx);
+            %     testData(:, cIdx) = testData(:, idx);
+            %     cIdx = cIdx + 1;
+            % end
+            % trainData = trainData(:, sIdx: cIdx - 1);
+            % testData = testData(:, sIdx: cIdx - 1);
+
             % %进一步构造特征
             % cIdx = size(trainData, 2) + 1;
             % for i = 1: size(trainData, 2) - 1
@@ -59,11 +60,20 @@ classdef DataProc < DataAttribute
             %     testData(:, cIdx + 1) = testData(:, i) ./ testData(:, i + 1);
             %     cIdx = cIdx + 2;
             % end
+  
+            %890(1,2), 1350(1,2)
+            trainData = [trainData(:, 1: 2), trainData(:, 5: 6)];
+            testData = [testData(:, 1: 2), testData(:, 5: 6)];
         end
 
         %构造特征, 注意行为一条数据, 列为特征
         function [trainData, testData] = strucRatioFeature(obj, trainData, ...
                 trainThick, testData, testThick)
+            
+            % 不要最后一路的接收数据
+            trainData = trainData(:, 1: 8);
+            testData = testData(:, 1: 8);
+
             cIdx = size(trainData, 2) + 1;
             % %将不同接收管的相同波段的比值作为特征 
             % for i = 1: obj.rNum - 1
@@ -80,7 +90,7 @@ classdef DataProc < DataAttribute
             % %将相同接收管的不同波段的比值、和值作为特征
             % for i = 1: obj.rNum
             %     idx = (i - 1) * obj.pNum;
-            %     for j = 1: obj.pNum - 1
+            %     for j = 1: obj.pNum - 2
             %         trainData(:, cIdx) = trainData(:, idx + j) ./ trainData(:, idx + j + 1);
             %         trainData(:, cIdx + 1) = trainData(:, idx + j) + trainData(:, idx + j + 1);
             %         testData(:, cIdx) = testData(:, idx + j) ./ testData(:, idx + j + 1);
@@ -91,6 +101,9 @@ classdef DataProc < DataAttribute
             %添加厚度特征
             trainData(:, cIdx) = trainThick;
             testData(:, cIdx) = testThick;
+            %去除掉第三路的数据
+            % trainData = [trainData(:, 1: 8), trainData(:, 13: end)];
+            % testData = [testData(:, 1: 8), testData(:, 13: end)];
         end
 
         %冰厚回归的模型数据处理
@@ -113,6 +126,18 @@ classdef DataProc < DataAttribute
             [trainData, testData] = obj.zScore(trainData, testData);
             % %PCA降维
             % [trainData, testData] = obj.PCA(trainData, testData, ratio);
+        end
+
+        %计算R^2
+        function [R2] = computeR2(~, real, predict) 
+            % 计算实际值的均值  
+            realMean = mean(real);   
+            % 残差平方和(RSE) 
+            RSE = sum((predict - real) .* (predict - real));
+            % 总平方误差和(TSE) 
+            TSE = sum((real - realMean) .* (real - realMean));
+            % 计算R方值  
+            R2 = 1 - (RSE / TSE);  
         end
 
     end
