@@ -55,10 +55,12 @@ z2890 = data(:, 9);
 z21350 = data(:, 10);
 z21450 = data(:, 11);
 z21550 = data(:, 12);
+z3890 = data(:, 13);
+z31350 = data(:, 14);
+z31450 = data(:, 15);
+z31550 = data(:, 16);
 
 % 线性拟合 + span = 0.25 即可
-
-
 
 
 %作图展示, 三维坐标
@@ -75,9 +77,9 @@ for i = 1: rNum
     % legend("890", "1350", "1450", "1550");
     % legend("1465", "1575");
     legend("890", "1350", "1450", "1550");
-    ylabel("水厚");
-    xlabel("冰厚");
-    zlabel("响应");
+    ylabel("水厚(mm)");
+    xlabel("冰厚(mm)");
+    zlabel("电压响应(V)");
     %ylim([0.01, 20]);
     %set(gca, "YScale", "log");
     grid on;
@@ -101,89 +103,89 @@ for i = 1: size(v, 2)
     fitMap(i) = fitresult;
 end 
 
-%目标的厚度区间
-% 冰厚度不变
-% wt = 2: 0.1: 4;
-% it = ones(1, size(wt, 2)) * 3;
-
-
-% 水厚度不变
-% it = 2: 0.1: 4;
-% wt = ones(1, size(it, 2)) * 2;
-
-% 厚度都变
-it = 1: 0.1: 3;
-wt = 1: 0.1: 3;
-
-% 总厚度不变
-% it = 1.1: 0.05: 2.9;
-% wt = 2.9: -0.05: 1.1;
-
-
-% wt = 1.3 * it;
-% wt = flip(wt);
-
-
-%冰水起始的厚度和最终的厚度
-begin = 2;
-final = 6;
-itBegin = begin / 2;
-wtBegin = begin - itBegin;
-dx = 10;
-dt = 0.5;
-incre = (final - begin);
-points = 0: 0.1: incre;
-lambdaStr = cell(1, size(points, 2));
-resMap = containers.Map("KeyType", 'double', "ValueType", 'any');
-cons = 100000;
-keys = zeros(1, size(points, 2));
-for i = 1: size(points, 2)
-    p = points(1, i);
-    iStep = p / dx;
-    wStep = (incre - p) / dx;
-    it = itBegin: iStep: itBegin + p;
-    if iStep == 0
-        it = ones(1, (incre - p) / wStep + 1) * itBegin;
-    end
-    wt = wtBegin: wStep: wtBegin + incre -p;
-    if wStep == 0
-        wt = ones(1, p / iStep + 1) * wtBegin;
-    end
-    res = zeros(4, size(it, 2));
-    for j = 1: size(it, 2)
-        for k = 1: 4
-            fitResult = fitMap(k);
-            res(k, j) = fitResult(it(1, j), wt(1, j));
-        end
-    end
-    %将1465视为不变量
-    tar = 10;
-    coff = ones(1, size(res, 2)) * tar ./ res(3, :);
-    for k = 1: size(res, 1)
-        res(k, :) = res(k, :) .* coff;
-    end
-    %装入数据
-    ratio = (itBegin + p) / (wtBegin + incre - p);
-    lambdaStr(1, i) = {mat2str(floor(ratio * 100) / 100)};
-    ratio = floor(ratio * cons);
-    resMap(ratio) = res;
-    keys(1, i) = ratio;
-end
-
-CG = ColorGenerator();
-[colorTable, ~] = CG.generate(points);
-
-%结果展示
-figure;
-for i = 1: size(keys, 2)
-    r = resMap(keys(1, i));
-    plot(r(1, :), 'Color', ...
-      [colorTable(i, :), 0.6], LineWidth=0.7); hold on;
-end
-legend(lambdaStr);
-xlabel("厚度点");
-ylabel("响应");
-grid on;
+% %目标的厚度区间
+% % 冰厚度不变
+% % wt = 2: 0.1: 4;
+% % it = ones(1, size(wt, 2)) * 3;
+% 
+% 
+% % 水厚度不变
+% % it = 2: 0.1: 4;
+% % wt = ones(1, size(it, 2)) * 2;
+% 
+% % 厚度都变
+% it = 1: 0.1: 3;
+% wt = 1: 0.1: 3;
+% 
+% % 总厚度不变
+% % it = 1.1: 0.05: 2.9;
+% % wt = 2.9: -0.05: 1.1;
+% 
+% 
+% % wt = 1.3 * it;
+% % wt = flip(wt);
+% 
+% 
+% %冰水起始的厚度和最终的厚度
+% begin = 2;
+% final = 6;
+% itBegin = begin / 2;
+% wtBegin = begin - itBegin;
+% dx = 10;
+% dt = 0.5;
+% incre = (final - begin);
+% points = 0: 0.1: incre;
+% lambdaStr = cell(1, size(points, 2));
+% resMap = containers.Map("KeyType", 'double', "ValueType", 'any');
+% cons = 100000;
+% keys = zeros(1, size(points, 2));
+% for i = 1: size(points, 2)
+%     p = points(1, i);
+%     iStep = p / dx;
+%     wStep = (incre - p) / dx;
+%     it = itBegin: iStep: itBegin + p;
+%     if iStep == 0
+%         it = ones(1, (incre - p) / wStep + 1) * itBegin;
+%     end
+%     wt = wtBegin: wStep: wtBegin + incre -p;
+%     if wStep == 0
+%         wt = ones(1, p / iStep + 1) * wtBegin;
+%     end
+%     res = zeros(4, size(it, 2));
+%     for j = 1: size(it, 2)
+%         for k = 1: 4
+%             fitResult = fitMap(k);
+%             res(k, j) = fitResult(it(1, j), wt(1, j));
+%         end
+%     end
+%     %将1465视为不变量
+%     tar = 10;
+%     coff = ones(1, size(res, 2)) * tar ./ res(3, :);
+%     for k = 1: size(res, 1)
+%         res(k, :) = res(k, :) .* coff;
+%     end
+%     %装入数据
+%     ratio = (itBegin + p) / (wtBegin + incre - p);
+%     lambdaStr(1, i) = {mat2str(floor(ratio * 100) / 100)};
+%     ratio = floor(ratio * cons);
+%     resMap(ratio) = res;
+%     keys(1, i) = ratio;
+% end
+% 
+% CG = ColorGenerator();
+% [colorTable, ~] = CG.generate(points);
+% 
+% %结果展示
+% figure;
+% for i = 1: size(keys, 2)
+%     r = resMap(keys(1, i));
+%     plot(r(1, :), 'Color', ...
+%       [colorTable(i, :), 0.6], LineWidth=0.7); hold on;
+% end
+% legend(lambdaStr);
+% xlabel("厚度点");
+% ylabel("响应");
+% grid on;
 
 % %结果展示
 % figure;
