@@ -54,6 +54,32 @@ classdef DataManagement < DataAttribute
             end
         end
 
+        %此函数目标文件夹下读取数据并保存
+        function readFileALLParam(obj, path)
+            %获得目标路径下的所有文件名称
+            names = dir(fullfile(path, '*.xlsx'));
+            for i = 1: length(names)
+                name = names(i).name;
+                %获取编号
+                number = str2double(name(1, 1: end - 5));
+                %当前文件的路径
+                nowFile = path + "\" + name;
+                %读取数据
+                data = readmatrix(nowFile);
+                %仅保留水的厚度在0.1mm以上的情况
+                idx = find(data(:, 3) >= 0.1, 1);
+                data = data(idx: end, :);
+                %对水的厚度进行补偿
+                load("dinoThickCompensate.mat", "fitresult");
+                data(:, 3) = data(:, 3) + fitresult(data(:, 3));
+                %保留所有数据信息
+                obj.number2Data(number) = data;
+                %目标数据分别是总厚度和水占比
+                s = sum(data(:, 2: 3), 2); 
+                obj.number2Tar(number) = [s, data(:, 3) ./ s];
+            end
+        end
+
         %获取数据的接口
         %numbers数组是需要获取的数据编号, 按行取
         function [data, tar] = getData(obj, numbers)

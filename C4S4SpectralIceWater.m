@@ -28,9 +28,13 @@ DP = DataProc();
 R2Thick = DP.computeR2(testThick, testThickPredict);
 fprintf("厚度预测的R方为: %0.3f\n", R2Thick);
 
+tT = testThick(idxThick, 1);
+tTP = testThickPredict(idxThick, 1);
+res = tTP - tT;
+
 figure(1);
 subplot(2, 1, 1);
-scatter(testThick(idxThick, 1), testThickPredict(idxThick, 1), 6, "filled"); hold on;
+scatter(tT, tTP, 6, "filled"); hold on;
 x1 = 1:0.05:9.5;
 plot(x1, x1, "LineWidth", 1.5);
 xlabel("实际厚度(mm)");
@@ -38,9 +42,11 @@ ylabel("预测厚度(mm)");
 title("总厚度预测的R方为: " + num2str(floor(R2Thick * 1000) / 1000));
 grid on;
 subplot(2, 1, 2);
-scatter(testThick(idxThick, 1), testThick(idxThick, 1) - testThickPredict(idxThick, 1), 6, "filled");
-xlabel("实际厚度(mm)");
-ylabel("预测厚度误差(mm)");
+histfit(res);
+xlabel("预测厚度误差(mm)");
+ylabel("累计个数");
+title("误差均值:" + num2str(floor(mean(res) * 1000) / 1000) + ...
+    " 标准差: " + num2str(floor(std(res) * 1000) / 1000));
 grid on;
 
 
@@ -49,9 +55,13 @@ grid on;
 R2Ratio = DP.computeR2(testRatio, testRatioPredict);
 fprintf("水占比预测的R方为: %0.3f\n", R2Ratio);
 
+tR = testRatio(idxRatio, 1);
+tRP = testRatioPredict(idxRatio, 1);
+res2 = tR - tRP;
+
 figure(2);
 subplot(2, 1, 1);
-scatter(testRatio(idxRatio, 1), testRatioPredict(idxRatio, 1), 6, "filled"); hold on;
+scatter(tR, tRP, 6, "filled"); hold on;
 x2 = 0:0.05:0.9;
 plot(x2, x2, "LineWidth", 2);
 xlabel("实际占比");
@@ -59,9 +69,11 @@ ylabel("预测占比");
 title("水占比预测的R方为: " + num2str(floor(R2Ratio * 1000) / 1000));
 grid on;
 subplot(2, 1, 2);
-scatter(testRatio(idxRatio, 1), testRatio(idxRatio, 1) - testRatioPredict(idxRatio, 1), 6, "filled");
-xlabel("实际占比");
-ylabel("预测占比误差");
+histfit(res2);
+xlabel("预测误差");
+ylabel("累计个数");
+title("误差均值:" + num2str(floor(mean(res2) * 1000) / 1000) + ...
+    " 标准差: " + num2str(floor(std(res2) * 1000) / 1000));
 grid on;
 
 %计算冰厚的水厚度的预测值
@@ -77,9 +89,13 @@ fprintf("冰厚预测的R方为: %0.3f\n", R2ice);
 
 [~, idxIce] = sort(rIce);
 
+rI = rIce(idxIce, 1);
+pI = pIce(idxIce, 1);
+res3 = rI - pI;
+
 figure(3);
 subplot(2, 1, 1);
-scatter(rIce(idxIce, 1), pIce(idxIce, 1), 6, "filled"); hold on;
+scatter(rI, pI, 6, "filled"); hold on;
 x1 = 0.5:0.05:6.4;
 plot(x1, x1, "LineWidth", 1.5);
 xlabel("实际冰厚度(mm)");
@@ -87,9 +103,11 @@ ylabel("预测冰厚度(mm)");
 title("冰厚度预测的R方为: " + num2str(floor(R2ice * 1000) / 1000));
 grid on;
 subplot(2, 1, 2);
-scatter(rIce(idxIce, 1), rIce(idxIce, 1) - pIce(idxIce, 1), 6, "filled");
-xlabel("实际冰厚度(mm)");
-ylabel("预测冰厚度误差(mm)");
+histfit(res3);
+xlabel("冰厚预测误差(mm)");
+ylabel("累计个数");
+title("误差均值:" + num2str(floor(mean(res3) * 1000) / 1000) + ...
+    " 标准差: " + num2str(floor(std(res3) * 1000) / 1000));
 grid on;
 
 
@@ -98,9 +116,13 @@ fprintf("水厚预测的R方为: %0.3f\n", R2water);
 
 [~, idxWater] = sort(rWater);
 
+rW = rWater(idxWater, 1);
+pW = pWater(idxWater, 1);
+res4 = rW - pW;
+
 figure(4);
 subplot(2, 1, 1);
-scatter(rWater(idxWater, 1), pWater(idxWater, 1), 6, "filled"); hold on;
+scatter(rW, pW, 6, "filled"); hold on;
 x1 = 0.1:0.05:5.6;
 plot(x1, x1, "LineWidth", 1.5);
 xlabel("实际水厚度(mm)");
@@ -108,12 +130,11 @@ ylabel("预测水厚度(mm)");
 title("水厚度预测的R方为: " + num2str(floor(R2water * 1000) / 1000));
 grid on;
 subplot(2, 1, 2);
-scatter(rWater(idxWater, 1), rWater(idxWater, 1) - pWater(idxWater, 1), 6, "filled");
-xlabel("实际水厚度(mm)");
-ylabel("预测水厚度误差(mm)");
+histfit(res4);
+xlabel("水厚预测误差(mm)");
+ylabel("累计个数");
+title("误差均值:" + num2str(floor(mean(res4) * 1000) / 1000) + ...
+    " 标准差: " + num2str(floor(std(res4) * 1000) / 1000));
 grid on;
-
-
-
 
 
