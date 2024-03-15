@@ -37,14 +37,6 @@ for i = 1: size(fileNames, 2)
     ridx = ridx + r;
 end
 
-% %将每一列的最大值统一化
-% tar = 20;
-% for i = 5: 8
-%     maxd = max(data(:, i));
-%     diff = tar - maxd;
-%     data(:, i) = data(:, i) + ones(size(data, 1), 1) * diff;
-% end
-
 x = data(:, 2);
 y = data(:, 3);
 z1890 = data(:, 5);
@@ -60,9 +52,7 @@ z31350 = data(:, 14);
 z31450 = data(:, 15);
 z31550 = data(:, 16);
 
-% 线性拟合 + span = 0.25 即可
-
-
+%<<<<<<<<<1、展示数据分布>>>>>>>>>>>
 %作图展示, 三维坐标
 for i = 1: rNum
     figure(i);
@@ -80,163 +70,99 @@ for i = 1: rNum
     ylabel("水厚(mm)");
     xlabel("冰厚(mm)");
     zlabel("电压响应(V)");
-    %ylim([0.01, 20]);
     %set(gca, "YScale", "log");
     grid on;
 end
 
+
+%<<<<<<<<<2、展示热力图>>>>>>>>>>>
+
 %根据数据进行拟合
-ice = data(:, 2);
-water = data(:, 3);
-% z = data(:, 8);
-v = data(:, 5: 8);
-
-types = containers.Map("KeyType", 'double', "ValueType", 'char');
-types(1) = "lowess";
-types(2) = "lowess";
-types(3) = "lowess";
-types(4) = "lowess";
-spans = [0.5, 0.3, 0.3, 0.3];
-fitMap = containers.Map("KeyType", 'double', "ValueType", 'any');
-for i = 1: size(v, 2)
-    [fitresult, ~] = surfaceFit(ice, water, v(:, i), types(i), spans(1, i));
-    fitMap(i) = fitresult;
+features = [z1890, z2890, z3890, z11350, z11450, z11550];
+squares = zeros(1, size(features, 2));
+type = "lowess";
+spans = [0.3, 0.3, 0.25, 0.2, 0.2, 0.2];
+fitModelMap = containers.Map("KeyType", 'double', "ValueType", 'any');
+%拟合的参数设置
+ft = fittype( 'lowess' );
+opts = fitoptions( 'Method', 'LowessFit' );
+for i = 1: size(features, 2)
+    opts.Span = spans(1, i);
+    [fittedmodel, gof] = fit([x, y], features(:, i), ft);
+    squares(1, i) = ceil(gof.rsquare * 1000) / 1000;
+    fitModelMap(i) = fittedmodel;
 end 
+%展示的数据范围
+ice = (1: 0.1: 6);
+water = (1: 0.1: 6);
+%X只包含ice的数据点, Y只包含water的数据点
+[X, Y] = meshgrid(ice, water);
 
-% %目标的厚度区间
-% % 冰厚度不变
-% % wt = 2: 0.1: 4;
-% % it = ones(1, size(wt, 2)) * 3;
-% 
-% 
-% % 水厚度不变
-% % it = 2: 0.1: 4;
-% % wt = ones(1, size(it, 2)) * 2;
-% 
-% % 厚度都变
-% it = 1: 0.1: 3;
-% wt = 1: 0.1: 3;
-% 
-% % 总厚度不变
-% % it = 1.1: 0.05: 2.9;
-% % wt = 2.9: -0.05: 1.1;
-% 
-% 
-% % wt = 1.3 * it;
-% % wt = flip(wt);
-% 
-% 
-% %冰水起始的厚度和最终的厚度
-% begin = 2;
-% final = 6;
-% itBegin = begin / 2;
-% wtBegin = begin - itBegin;
-% dx = 10;
-% dt = 0.5;
-% incre = (final - begin);
-% points = 0: 0.1: incre;
-% lambdaStr = cell(1, size(points, 2));
-% resMap = containers.Map("KeyType", 'double', "ValueType", 'any');
-% cons = 100000;
-% keys = zeros(1, size(points, 2));
-% for i = 1: size(points, 2)
-%     p = points(1, i);
-%     iStep = p / dx;
-%     wStep = (incre - p) / dx;
-%     it = itBegin: iStep: itBegin + p;
-%     if iStep == 0
-%         it = ones(1, (incre - p) / wStep + 1) * itBegin;
-%     end
-%     wt = wtBegin: wStep: wtBegin + incre -p;
-%     if wStep == 0
-%         wt = ones(1, p / iStep + 1) * wtBegin;
-%     end
-%     res = zeros(4, size(it, 2));
-%     for j = 1: size(it, 2)
-%         for k = 1: 4
-%             fitResult = fitMap(k);
-%             res(k, j) = fitResult(it(1, j), wt(1, j));
-%         end
-%     end
-%     %将1465视为不变量
-%     tar = 10;
-%     coff = ones(1, size(res, 2)) * tar ./ res(3, :);
-%     for k = 1: size(res, 1)
-%         res(k, :) = res(k, :) .* coff;
-%     end
-%     %装入数据
-%     ratio = (itBegin + p) / (wtBegin + incre - p);
-%     lambdaStr(1, i) = {mat2str(floor(ratio * 100) / 100)};
-%     ratio = floor(ratio * cons);
-%     resMap(ratio) = res;
-%     keys(1, i) = ratio;
-% end
-% 
-% CG = ColorGenerator();
-% [colorTable, ~] = CG.generate(points);
-% 
-% %结果展示
-% figure;
-% for i = 1: size(keys, 2)
-%     r = resMap(keys(1, i));
-%     plot(r(1, :), 'Color', ...
-%       [colorTable(i, :), 0.6], LineWidth=0.7); hold on;
-% end
-% legend(lambdaStr);
-% xlabel("厚度点");
-% ylabel("响应");
-% grid on;
+level = 8;
+step = 8;
 
-% %结果展示
-% figure;
-% for i = 2: size(res, 1)
-%     plot(x, res(i, :)); hold on;
-% end
-% 
-% 
-% x = wt;
-% str = "单层厚度";
-% 
-% figure;
-% for i = 2: size(res, 1)
-%     plot(x, res(i, :)); hold on;
-% end
-% % legend("890", "1405", "1465", "1575");
-% legend("1405", "1465", "1575");
-% xlabel(str);
-% ylabel("响应");
-% grid on;
-% 
-% 
-% A = res(4, :) - res(3, :);
-% B = res(2, :) - res(3, :);
-% C = res(4, :) - res(2, :);
-% figure;
-% plot(x, A); hold on;
-% plot(x, B ./ A);
-% plot(x, C); hold on;
-% legend("1575 - 1465", "(1405 - 1465) / (1575 - 1465)", "1575 - 1405");
-% xlabel(str);
-% ylabel("响应");
-% grid on;
+%890nm
+figure(4);
+
+subplot(2, 3, 1);
+fitresult = fitModelMap(1);
+[C,h] = contourf(X, Y, fitresult(X, Y), level, 'LineWidth', 0.9, 'ShowText', 'on');
+h.LevelList = round(h.LevelList, 1);
+clabel(C,h, 'LabelSpacing', 270);
+xlabel("冰厚(mm)");
+ylabel("水厚(mm)");
+title("890nm-1, Rsquare:" + num2str(squares(1, 1)));
 
 
-% %计算特征
-% n890 = res(1, :);
-% n1405 = res(2, :);
-% n1465 = res(3, :);
-% n1575 = res(4, :);
-% 
-% f = [n1405 ./ n890; n1465 ./ n890; n1575 ./ n890; 
-%     n1465 ./ n1405; n1575 ./ n1405; n1575 ./ n1465];
-% 
-% %展示特征
-% figure;
-% for i = 1: size(f, 1)
-%     plot(x, f(i, :)); hold on;
-% end
-% legend("1405 / 890", "1465 / 890", "1575 / 890", "1465 / 1405", "1575 / 1405", "1575 / 1465");
-% % legend("1405", "1465", "1575");
-% xlabel(str);
-% ylabel("响应");
-% grid on;
+subplot(2, 3, 2);
+fitresult = fitModelMap(2);
+[C,h] = contourf(X, Y, fitresult(X, Y), level, 'LineWidth', 0.9, 'ShowText', 'on');
+h.LevelList = round(h.LevelList, 1);
+clabel(C, h, 'LabelSpacing', 270);
+title("890nm-2, Rsquare:" + num2str(squares(1, 2)));
+
+subplot(2, 3, 3);
+fitresult = fitModelMap(3);
+[C,h] = contourf(X, Y, fitresult(X, Y), level, 'LineWidth', 0.9, 'ShowText', 'on');
+h.LevelList = round(h.LevelList, 1);
+clabel(C, h, 'LabelSpacing', 270);
+title("890nm-3, Rsquare:" + num2str(squares(1, 3)));
+
+subplot(2, 3, 4);
+fitresult = fitModelMap(4);
+[C,h] = contourf(X, Y, fitresult(X, Y), level, 'LineWidth', 0.9, 'ShowText', 'on');
+h.LevelList = round(h.LevelList, 1);
+clabel(C, h, 'LabelSpacing', 270);
+xlabel("冰厚(mm)");
+ylabel("水厚(mm)");
+title("1350nm-1, Rsquare:" + num2str(squares(1, 4)));
+
+subplot(2, 3, 5);
+fitresult = fitModelMap(5);
+Z = fitresult(X, Y);
+Ma = max(max(Z));
+Mi = min(min(Z));
+interval = Ma - Mi;
+s = interval / step;
+levels = Mi: s: Ma - s;
+levels = round(levels * 100, 1) / 100;
+[C,h] = contourf(X, Y, Z, levels, 'LineWidth', 0.9, 'ShowText', 'on');
+clabel(C, h, 'LabelSpacing', 270);
+xlabel("冰厚(mm)");
+title("1450nm-1, Rsquare:" + num2str(squares(1, 5)));
+
+subplot(2, 3, 6);
+fitresult = fitModelMap(6);
+Z = fitresult(X, Y);
+Ma = max(max(Z));
+Mi = min(min(Z));
+interval = Ma - Mi;
+s = interval / step;
+levels = Mi: s: Ma - s;
+levels = round(levels * 100, 1) / 100;
+[C,h] = contourf(X, Y, Z, levels, 'LineWidth', 0.9, 'ShowText', 'on');
+clabel(C, h, 'LabelSpacing', 270);
+xlabel("冰厚(mm)");
+title("1550nm-1, Rsquare:" + num2str(squares(1, 6)));
+
+colormap("cool");
