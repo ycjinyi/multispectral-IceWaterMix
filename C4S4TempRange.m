@@ -25,9 +25,10 @@ for i = 1: size(numbers, 2)
 end
 
 %按照初始厚度对数据进行排序
-[~, idx] = sort(tempData(1, :));
-tempData = tempData(:, idx);
-x = tempData(1, :);
+% [~, idx] = sort(tempData(1, :));
+% tempData = tempData(:, idx);
+x = 1: size(tempData, 2);
+% x = tempData(1, :);
 
 %作图
 figure(1);
