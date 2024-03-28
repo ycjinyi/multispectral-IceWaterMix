@@ -26,7 +26,9 @@ DP = DataProc();
 [~, idxThick] = sort(testThick);
 
 R2Thick = DP.computeR2(testThick, testThickPredict);
+RMSEThick = DP.computeRMSE(testThick, testThickPredict);
 fprintf("厚度预测的R方为: %0.3f\n", R2Thick);
+fprintf("厚度预测的RMSE为: %0.3f\n", RMSEThick);
 
 tT = testThick(idxThick, 1);
 tTP = testThickPredict(idxThick, 1);
@@ -50,14 +52,32 @@ title("误差均值:" + num2str(floor(mean(res) * 1000) / 1000) + ...
 grid on;
 
 
+% a = (0: 0.01: 10)';
+% [color] = DP.colorMap(res, 255);
+% color = color * 2;
+% color = min(color ,255);
+% 
+b = (-0.39: 0.02: 0.39)';
+[color1] = DP.colorMap(b, 255);
+color1 = color1 * 2;
+color1 = min(color1 ,255);
+
+
+
 [~, idxRatio] = sort(testRatio);
+
+%将预测结果限制在0到1之间
+testRatioPredict = max(testRatioPredict, 0);
+testRatioPredict = min(testRatioPredict, 1);
 
 R2Ratio = DP.computeR2(testRatio, testRatioPredict);
 fprintf("水占比预测的R方为: %0.3f\n", R2Ratio);
+RMSERatio = DP.computeRMSE(testRatio, testRatioPredict);
+fprintf("水占比预测的RMSE为: %0.3f\n", RMSERatio);
 
 tR = testRatio(idxRatio, 1);
 tRP = testRatioPredict(idxRatio, 1);
-res2 = tR - tRP;
+res2 = tRP - tR;
 
 figure(2);
 subplot(2, 1, 1);
@@ -76,7 +96,19 @@ title("误差均值:" + num2str(floor(mean(res2) * 1000) / 1000) + ...
     " 标准差: " + num2str(floor(std(res2) * 1000) / 1000));
 grid on;
 
-%计算冰厚的水厚度的预测值
+% a = (0.01: 0.01: 1)';
+[color] = DP.colorMap(res2, 255);
+color = color * 2;
+color = min(color ,255);
+% 
+% b = (-0.78: 0.04: 0.78)';
+% [color1] = DP.colorMap(b, 255);
+% color1 = color1 * 2;
+% color1 = min(color1 ,255);
+
+
+
+%计算冰厚水厚度的预测值
 pIce = testThickPredict .* (1 - testRatioPredict);
 pWater = testThickPredict .* testRatioPredict;
 %冰厚水厚的实际值
@@ -86,12 +118,14 @@ rWater = testThick .* testRatio;
 %展示结果
 R2ice = DP.computeR2(rIce, pIce);
 fprintf("冰厚预测的R方为: %0.3f\n", R2ice);
+RMSEice = DP.computeRMSE(rIce, pIce);
+fprintf("冰厚预测的RMSE为: %0.3f\n", RMSEice);
 
 [~, idxIce] = sort(rIce);
 
 rI = rIce(idxIce, 1);
 pI = pIce(idxIce, 1);
-res3 = rI - pI;
+res3 = pI - rI;
 
 figure(3);
 subplot(2, 1, 1);
@@ -110,15 +144,27 @@ title("误差均值:" + num2str(floor(mean(res3) * 1000) / 1000) + ...
     " 标准差: " + num2str(floor(std(res3) * 1000) / 1000));
 grid on;
 
+a = (0.01: 0.01: 8)';
+[color] = DP.colorMap(res3, 255);
+color = floor(color * 1.5);
+color = min(color ,255);
+% 
+b = (1: 1: 40)';
+[color1] = DP.colorMap(b, 255);
+color1 = floor(color1 * 2);
+color1 = min(color1 ,255);
+
 
 R2water = DP.computeR2(rWater, pWater);
 fprintf("水厚预测的R方为: %0.3f\n", R2water);
+RMSEwater = DP.computeRMSE(rWater, pWater);
+fprintf("水厚预测的RMSE为: %0.3f\n", RMSEwater);
 
 [~, idxWater] = sort(rWater);
 
 rW = rWater(idxWater, 1);
 pW = pWater(idxWater, 1);
-res4 = rW - pW;
+res4 = pW - rW;
 
 figure(4);
 subplot(2, 1, 1);
@@ -137,4 +183,12 @@ title("误差均值:" + num2str(floor(mean(res4) * 1000) / 1000) + ...
     " 标准差: " + num2str(floor(std(res4) * 1000) / 1000));
 grid on;
 
-
+a = (0.01: 0.01: 6)';
+[color] = DP.colorMap(res4, 255);
+color = floor(color * 1.2);
+color = min(color ,255);
+% 
+b = (1: 1: 40)';
+[color1] = DP.colorMap(b, 255);
+color1 = floor(color1 * 1.2);
+color1 = min(color1 ,255);

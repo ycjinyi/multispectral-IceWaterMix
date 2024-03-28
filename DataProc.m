@@ -140,5 +140,36 @@ classdef DataProc < DataAttribute
             R2 = 1 - (RSE / TSE);  
         end
 
+        %计算RMSE
+        function [RMSE] = computeRMSE(~, real, preditct)
+            count = size(real, 1);
+            s = 0;
+            %计算RMSE
+            for i = 1: count
+                s = s + power(real(i, 1) - preditct(i, 1), 2);
+            end
+            RMSE = sqrt(s / count);
+        end
+
+        %计算创建颜色映射
+        function [color] = colorMap(~, data, value)
+            %数据的均值
+            dataMean = mean(data);
+            %首先减去均值
+            data = data - dataMean;
+            %数据的最大值
+            dataMax = max(data);
+            %数据的最小值
+            dataMin = min(data);
+            %然后找到最大的变化范围
+            range = max(dataMax, abs(dataMin));
+            %计算系数
+            coff = 1 / range;
+            %乘以系数
+            data = abs(data) * coff;
+            %颜色映射
+            color = round(data * value);  
+        end
+
     end
 end

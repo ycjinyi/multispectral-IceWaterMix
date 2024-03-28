@@ -41,7 +41,5 @@ ylabel("温度值(℃)");
 xlabel("初始冰厚值(mm)");
 grid on;
 
-
-
-
-
+t = tempData';
+x = x';

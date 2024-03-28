@@ -20,12 +20,26 @@ data = ...
  8.561, 8.839;
  8.978, 9.255;];
 
-x = data(:, 1);
-y = data(:, 2) - data(:, 1);
+data1 = [data(1:8, :); data(11: end, :)];
+x1 = data1(:, 1);
+y1 = data1(:, 2) - data1(:, 1);
 figure;
-scatter(x, y, 16, "filled"); hold on;
-[fitresult, R] = cruvFit(x, y, "poly1");
-plot(x, fitresult(x), "LineWidth", 1.5);
+scatter(x1, y1, 16, "filled"); hold on;
+[fitresult, R] = cruvFit(x1, y1, "poly1");
+plot(x1, fitresult(x1), "LineWidth", 1.5);
 xlabel("测量厚度(mm)");
 ylabel("补偿厚度(mm)");
 grid on;
+
+p = fitresult(x1);
+count = size(p, 1);
+s = 0;
+%计算RMSE
+for i = 1: count
+    s = s + power(y1(i, 1) - p(i, 1), 2);
+end
+RMSE = sqrt(s / count);
+
+x = data(:, 1);
+y = data(:, 2);
+pre = fitresult(x);
